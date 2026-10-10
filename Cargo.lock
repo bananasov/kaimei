@@ -252,10 +252,13 @@ checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
 name = "buttplug-client"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "serde",
  "serde_json",
  "serde_repr",
  "sockudo-ws",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -1614,6 +1617,7 @@ name = "kaimei"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "buttplug-client",
  "clap",
  "iroh",
  "iroh-ping",
