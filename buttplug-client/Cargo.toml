@@ -1,0 +1,10 @@
+[package]
+name = "buttplug-client"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sockudo-ws = { git = "https://github.com/sockudo/sockudo-ws" }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_repr = "0.1" # Makes some buttplug.io enum bullshit nicer
+serde_json = "1.0.152"
