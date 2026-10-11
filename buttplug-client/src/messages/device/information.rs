@@ -33,7 +33,7 @@ pub struct DeviceInfo {
     /// User provided display name for a device.
     ///
     /// Useful for cases where a users may have multiple of the same device connected.
-    pub device_display_name: String,
+    pub device_display_name: Option<String>,
 
     pub device_features: BTreeMap<u32, DeviceFeature>,
 }
