@@ -46,6 +46,18 @@ pub enum ErrorCode {
     ErrorDevice = 4,
 }
 
+impl std::fmt::Display for ErrorCode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ErrorCode::ErrorUnknown => f.write_str("Unknown error"),
+            ErrorCode::ErrorInit => f.write_str("Init error"),
+            ErrorCode::ErrorPing => f.write_str("Ping error"),
+            ErrorCode::ErrorMsg => f.write_str("Message parsing error"),
+            ErrorCode::ErrorDevice => f.write_str("Device command error"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PingMessage {
