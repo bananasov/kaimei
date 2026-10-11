@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct InputCmdMessage {
     pub id: u32,
@@ -12,7 +12,7 @@ pub struct InputCmdMessage {
     pub command: InputCommand,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum InputCommand {
     Read,
@@ -20,7 +20,7 @@ pub enum InputCommand {
     Unsubscribe,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct InputReadingMessage {
     pub id: u32,
@@ -30,11 +30,11 @@ pub struct InputReadingMessage {
     #[serde(rename = "Type")]
     pub input_type: InputType,
 
-    /// Data from the input, including InputType and the corresponding format.
+    /// Data from the input, including `InputType` and the corresponding format.
     pub reading: InputData,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub enum InputData {
     Battery(InputValue<u8>),
@@ -43,7 +43,7 @@ pub enum InputData {
     Pressure(InputValue<u32>),
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub enum InputType {
     Battery,
@@ -52,14 +52,14 @@ pub enum InputType {
     Pressure,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct InputValue<T> {
     value: T,
 }
 
 impl<T> InputValue<T> {
-    pub fn new(value: T) -> InputValue<T> {
+    pub const fn new(value: T) -> Self {
         Self { value }
     }
 }

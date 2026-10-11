@@ -3,10 +3,10 @@
 use serde::{Deserialize, Serialize};
 
 /// Sent by the client to register itself with the server, and request info from the server.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct RequestServerInfoMessage {
-    pub id: i32,
+    pub id: u32,
 
     /// Name of the client, for the server to use for UI if needed. Cannot be null.
     pub client_name: String,
@@ -19,10 +19,10 @@ pub struct RequestServerInfoMessage {
 }
 
 /// Sent by server to client, contains information about the server name (optional) and ping time expectations.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ServerInfoMessage {
-    pub id: i32,
+    pub id: u32,
 
     /// Name of the client, for the server to use for UI if needed. Cannot be null.
     pub server_name: String,
@@ -43,8 +43,8 @@ pub struct ServerInfoMessage {
 }
 
 /// Sent by the client to request a graceful disconnection from the server.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct DisconnectMessage {
-    pub id: i32,
+    pub id: u32,
 }

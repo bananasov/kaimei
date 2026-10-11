@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use value::{OutputHwPositionWithDuration, OutputValue};
 
 /// Sends a command to an output of some type.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct OutputCmdMessage {
     pub id: u32,
@@ -16,7 +16,7 @@ pub struct OutputCmdMessage {
     pub command: OutputCommand,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub enum OutputCommand {
     Vibrate(OutputValue),

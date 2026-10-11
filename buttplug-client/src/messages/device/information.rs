@@ -6,10 +6,10 @@ use serde::{Deserialize, Serialize};
 
 /// Server reply to a client request for a device list,
 /// or sent as an event when a device is connected or disconnected.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct DeviceListMessage {
-    pub id: i32,
+    pub id: u32,
 
     /// Map of device index to device info.
     pub devices: HashMap<u32, DeviceInfo>,
@@ -18,7 +18,7 @@ pub struct DeviceListMessage {
 // TODO: Consider remove the `device_` prefix, seems redundant.
 //       Would require me adding `#[serde(rename = "...")]` everywhere though.
 /// Substructure of device messages, used for attribute information (name, messages supported, etc...)
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct DeviceInfo {
     /// Descriptive name of the device
@@ -38,7 +38,7 @@ pub struct DeviceInfo {
     pub device_features: BTreeMap<u32, DeviceFeature>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct DeviceFeature {
     pub feature_description: String,
