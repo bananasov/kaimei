@@ -5,7 +5,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 
 use anyhow::{Context, bail};
 use sockudo_ws::error::CloseReason;
-use sockudo_ws::{Config, Http1, Message, client::WebSocketClient};
+use sockudo_ws::{Config, Http1, client::WebSocketClient};
 use sockudo_ws::{SplitWriter, Stream};
 use tokio::sync::Mutex;
 use tokio::sync::mpsc::{self, Receiver};
