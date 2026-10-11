@@ -1,43 +1,84 @@
-use serde_json::{Value::Object, json};
+mod handle;
+
+use std::sync::Arc;
+use std::sync::atomic::{AtomicU32, Ordering};
+
+use anyhow::{Context, bail};
+use sockudo_ws::error::CloseReason;
 use sockudo_ws::{Config, Http1, Message, client::WebSocketClient};
-use tokio::net::TcpStream;
+use sockudo_ws::{SplitWriter, Stream};
+use tokio::sync::Mutex;
+use tokio::sync::mpsc::{self, Receiver};
 
-use crate::messages::Message as ButtplugMessage;
-use crate::messages::connection::RequestServerInfoMessage;
+use crate::messages::{self, MessageRequest, MessageResponse};
 
-pub struct ButtplugClient {}
+#[derive(Clone)]
+pub struct ButtplugClient {
+    last_message_id: Arc<AtomicU32>,
+    tx: Arc<Mutex<SplitWriter<Stream<Http1>>>>,
+}
 
 impl<'a> ButtplugClient {
-    pub async fn new(client_name: &'a str, host: &'a str, path: &'a str) -> anyhow::Result<()> {
-        let stream = TcpStream::connect(host).await?; // TODO: DO NOT UNWRAP
+    pub async fn new(
+        client_name: &'a str,
+        url: &'a str,
+    ) -> anyhow::Result<(Self, Receiver<MessageResponse>)> {
         let client = WebSocketClient::<Http1>::new(Config::default());
-        let (ws, _handshake) = client.connect(stream, host, path, None).await?;
-        let (mut reader, mut writer) = ws.split();
+        let (ws, _handshake) = client.connect_to_url(url, None).await?;
 
-        let request = RequestServerInfoMessage {
-            id: 1,
-            client_name: client_name.into(),
-            protocol_version_major: 4,
-            protocol_version_minor: 0,
+        let (send, recv) = mpsc::channel::<messages::MessageResponse>(64);
+        let (rx, tx) = ws.split();
+
+        let res = Self {
+            last_message_id: Arc::new(AtomicU32::from(1)),
+            tx: Arc::new(Mutex::new(tx)),
         };
-        let msg = ButtplugMessage::RequestServerInfo(request);
-        let meow = vec![msg];
-        let json = serde_json::to_string(&meow)?;
 
-        writer.send_text(json).await?;
+        tokio::spawn(handle::handle_incoming(rx, send));
 
-        let mwu = reader.next().await;
-        if let Some(message) = mwu
-            && let Ok(mrro) = message
-            && let Message::Text(contents) = mrro
-        {
-            // SAFETY: WebSocket text messages SHOULD be encoded as UTF-8.
-            let string = unsafe { str::from_utf8_unchecked(&contents) };
-            tracing::info!("{string}");
+        let id = res.last_message_id.load(Ordering::Relaxed);
+        let mrrp = MessageRequest::request_server_info(id, client_name);
+
+        res.send_request(mrrp).await?;
+
+        Ok((res, recv))
+    }
+
+    fn next_id(&self) -> u32 {
+        self.last_message_id.fetch_add(1, Ordering::Relaxed)
+    }
+
+    // TODO: Response handling
+    async fn send_request(&self, req: MessageRequest) -> anyhow::Result<()> {
+        let mut tx = self.tx.lock().await;
+
+        let msg = [req];
+        let value = serde_json::to_string(&msg).context("Failed to serialize message request")?;
+
+        if let Err(err) = tx.send_text(value).await {
+            tracing::error!("Couldn't send request");
+
+            bail!(err);
         }
 
-        writer.close(0, "exiting").await?;
+        drop(tx);
+        Ok(())
+    }
 
+    pub async fn close(self) -> anyhow::Result<()> {
+        use messages::connection::DisconnectMessage;
+
+        tracing::debug!("Closing websocket connection");
+
+        let mut tx = self.tx.lock().await;
+
+        let id = self.next_id();
+        let req = MessageRequest::Disconnect(DisconnectMessage { id });
+        self.send_request(req).await?;
+
+        tx.close(CloseReason::NORMAL, "closing").await?;
+
+        drop(tx);
         Ok(())
     }
 }
