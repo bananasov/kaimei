@@ -13,6 +13,7 @@ pub enum MessageRequest {
     RequestServerInfo(connection::RequestServerInfoMessage),
     Ping(status::PingMessage),
 
+    RequestDeviceList(device::RequestDeviceListMessage),
     StartScanning(device::StartScanningMessage),
     StopScanning(device::StopScanningMessage),
 
@@ -38,6 +39,7 @@ pub enum MessageResponse {
 }
 
 impl MessageRequest {
+    #[inline(always)]
     pub fn request_server_info(id: u32, client_name: impl Into<String>) -> Self {
         let data = connection::RequestServerInfoMessage {
             id,
@@ -47,5 +49,12 @@ impl MessageRequest {
         };
 
         Self::RequestServerInfo(data)
+    }
+
+    #[inline(always)]
+    pub fn request_device_list(id: u32) -> Self {
+        let data = device::RequestDeviceListMessage { id };
+
+        Self::RequestDeviceList(data)
     }
 }
