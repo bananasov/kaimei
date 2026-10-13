@@ -9,11 +9,14 @@ pub struct InputCmdMessage {
     pub device_index: u32,
     pub device_feature: u32,
 
+    /// The type of input we expect to receive from this feature.
+    #[serde(rename = "Type")]
+    pub input_type: InputType,
+
     pub command: InputCommand,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
 pub enum InputCommand {
     Read,
     Subscribe,
@@ -26,9 +29,6 @@ pub struct InputReadingMessage {
     pub id: u32,
     pub device_index: u32,
     pub feature_index: u32,
-
-    #[serde(rename = "Type")]
-    pub input_type: InputType,
 
     /// Data from the input, including `InputType` and the corresponding format.
     pub reading: InputData,
